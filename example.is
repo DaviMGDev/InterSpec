@@ -1,0 +1,173 @@
+// InterSpec Example
+// A comprehensive demonstration of the InterSpec language features.
+
+// ---------------------------------------------------------------------------
+// 1. Variables & Data Types
+// ---------------------------------------------------------------------------
+
+state greeting = "Hello, World!"       // string
+const maxRetries = 3                   // number
+state isActive = true                  // boolean
+state items = ["Apple", "Banana"]      // array
+state metadata = { version: 1 }        // object
+
+// Dynamic typing allows reassignment to a different type
+state flexible = "text"
+flexible = 42
+
+// Direct variable access (no $ prefix)
+Text(greeting)
+
+// String interpolation (uses ${})
+Text("Max retries: ${maxRetries}")
+Text("Item count: ${items.length}")
+
+// ---------------------------------------------------------------------------
+// 2. Control Flow
+// ---------------------------------------------------------------------------
+
+state fruits = ["Apple", "Banana", "Cherry"]
+state showDetails = true
+
+for fruit in fruits {
+    Text("Fruit: ${fruit}")
+}
+
+if showDetails {
+    Text("Showing details")
+} else {
+    Text("Details hidden")
+}
+
+// ---------------------------------------------------------------------------
+// 3. Component Declaration
+// ---------------------------------------------------------------------------
+
+// A reusable component with a parameter.
+// The component itself is neutral (renders no wrapper node).
+component FruitCard(name) {
+    Text(name)
+    Text("---")
+}
+
+// Instantiation: children passed in the block are appended to the end.
+// Rendered order:
+//   1. Text(name)        <- from declaration
+//   2. Text("---")       <- from declaration
+//   3. Text("child")     <- from instantiation block
+FruitCard("Mango") {
+    Text("child")
+}
+
+// ---------------------------------------------------------------------------
+// 4. Layout
+// ---------------------------------------------------------------------------
+
+// Row layout with wrapping
+row {
+    wrap: true
+    Text("A")
+    Text("B")
+    Text("C")
+}
+
+// Column layout
+column {
+    Text("Row 1")
+    Text("Row 2")
+}
+
+// Alignment and weight on individual components
+Text("Centered text") {
+    align: (center, center)
+    weight: both
+}
+
+// ---------------------------------------------------------------------------
+// 5. Events & Reactivity
+// ---------------------------------------------------------------------------
+
+state counter = 0
+
+Button("Increment") {
+    on click {
+        counter = counter + 1
+    }
+}
+
+Button("Hover me") {
+    on hover {
+        Tooltip("You are hovering!")
+    }
+}
+
+// Reactive state watcher
+on change(counter) {
+    Toast("Counter changed from ${old(counter)} to ${counter}")
+}
+
+// ---------------------------------------------------------------------------
+// 6. Pages & Navigation
+// ---------------------------------------------------------------------------
+
+page Settings(theme) {
+    Text("Current theme: ${theme}")
+
+    Button("Go back") {
+        on click {
+            navigate Home()
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 7. Main Entry Point
+// ---------------------------------------------------------------------------
+
+page Main() {
+    state selected = "None"
+    state count = 0
+
+    column {
+        Text("InterSpec Demo") {
+            weight: horizontal
+        }
+
+        // Variable display
+        Text("Selected: ${selected}")
+        Text("Count: ${count}")
+
+        // Layout demo
+        row {
+            wrap: true
+
+            Button("Apples") {
+                on click {
+                    selected = "Apples"
+                    count = count + 1
+                }
+            }
+
+            Button("Bananas") {
+                on click {
+                    selected = "Bananas"
+                    count = count + 1
+                }
+            }
+
+            Button("Cherries") {
+                on click {
+                    selected = "Cherries"
+                    count = count + 1
+                }
+            }
+        }
+
+        // Navigation
+        Button("Open settings") {
+            on click {
+                navigate Settings(theme: "dark")
+            }
+        }
+    }
+}
