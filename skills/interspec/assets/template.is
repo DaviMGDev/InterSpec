@@ -1,0 +1,21 @@
+// InterSpec application template
+// Replace this with your UI specification
+
+page Main() {
+    state title = "My App"
+
+    column {
+        align: (center, center)
+
+        Text(title) {
+            weight: horizontal
+        }
+
+        Button("Get Started") {
+            on click {
+                Toast("Welcome!")
+            }
+        }
+    }
+}
+
