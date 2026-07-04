@@ -1,0 +1,14 @@
+// This is a single-line comment
+state greeting = "Hello, World!"
+
+/* This is a multi-line comment */
+state count = 42
+
+// Another single line
+state flag = true
+
+/* Block
+   comment
+   spanning
+   multiple lines */
+state name = "Alice"
