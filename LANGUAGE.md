@@ -1,5 +1,3 @@
-***
-
 # InterSpec Language Specification
 
 **File Extension:** `.is`  
