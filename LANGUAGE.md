@@ -1,5 +1,3 @@
-Here is the newly organized, official specification for **InterSpec**. It is structured as a clean, professional language reference, incorporating all your design decisions, removing the `$` sigil for variables, and strictly documenting the "no magic" component behavior.
-
 ***
 
 # InterSpec Language Specification
