@@ -155,6 +155,8 @@ if condition {
 Components trigger built-in events, and state changes can be observed reactively.
 
 ### Standard Events
+Components fire events in response to user interaction. The table in [Section 8](#8-built-in-catalog) lists all standard events and which components they apply to.
+
 ```interspec
 Button("Hover me") {
     on hover {
@@ -162,6 +164,27 @@ Button("Hover me") {
     }
     on click {
         navigate AnotherPage()
+    }
+}
+
+Input("Enter your name") {
+    on input {
+        log("Current value: ${value}")
+    }
+    on focus {
+        Toast("Input focused")
+    }
+    on blur {
+        Toast("Input lost focus")
+    }
+}
+
+Modal("Confirm") {
+    on open {
+        log("Modal opened")
+    }
+    on close {
+        log("Modal closed")
     }
 }
 ```
@@ -183,16 +206,87 @@ Button("Toggle") {
 ```
 
 ## 8. Built-in Catalog
-*(This list will expand over time)*
 
-**Components:**  
-`Button`, `Text`, `Modal`, `Toast`, `Dialog`, `Tooltip`, `Checkbox`, `Slider`, `Toggle`
+### Components
 
-**Events:**  
-`click`, `hover`
+| Component | Parameters | Description |
+|-----------|------------|-------------|
+| `Button` | `label` | A clickable button that triggers actions. |
+| `Text` | `content` | Renders a string of text. |
+| `Input` | `placeholder` | A single-line text input field for user entry. |
+| `Select` | `options` | A dropdown picker. Pass an array of strings or objects as options. |
+| `Checkbox` | `label` | A toggleable checkbox with an adjacent label. |
+| `Toggle` | `label` | A boolean on/off toggle switch with a label. |
+| `Slider` | — | A range slider for numeric selection. |
+| `Image` | `src` | An image placeholder. Takes a URL string for `src`. |
+| `Icon` | `name` | A semantic icon indicator (e.g., `"settings"`, `"user"`, `"search"`). The actual icon set is determined by the runtime. |
+| `Alert` | `message` | An inline system message for success, error, warning, or info states. Use the `variant` property to set the semantic type. |
+| `Card` | `title` | A content container that groups related information. Card is a neutral component (no wrapper node) — children are appended after the title. |
+| `Modal` | `title` | A modal overlay dialog that blocks interaction with the rest of the page. |
+| `Dialog` | `title` | A confirmation or information dialog that requires user action. |
+| `Toast` | `message` | A brief, auto-dismissing pop-up notification. |
+| `Tooltip` | `content` | A hover-revealed tooltip that displays contextual information. |
 
-**Actions:**  
-`navigate`
+#### Usage Examples
+
+```interspec
+// Card — groups related content
+Card("User Profile") {
+    Text("Name: Alice")
+    Text("Role: Admin")
+}
+
+// Input — text entry field
+Input("Enter your name...")
+
+// Select — dropdown with options
+Select(["Apple", "Banana", "Cherry"])
+
+// Image — placeholder with source URL
+Image("https://example.com/photo.png")
+
+// Icon — semantic indicator
+Icon("settings")
+
+// Alert — inline system message
+Alert("File saved successfully") {
+    variant: success
+}
+```
+
+### Events
+
+| Event | Applies To | Description |
+|-------|------------|-------------|
+| `click` | `Button`, `Checkbox`, `Toggle`, `Card` | Fired when the user clicks or taps the component. |
+| `hover` | `Button`, `Tooltip`, `Card`, `Icon` | Fired when the user hovers the cursor over the component. |
+| `input` | `Input`, `Select` | Fired on every value change (e.g., each keystroke in an `Input`). |
+| `focus` | `Input`, `Button`, `Select` | Fired when the component receives focus. |
+| `blur` | `Input`, `Button`, `Select` | Fired when the component loses focus. |
+| `open` | `Modal`, `Dialog`, `Toast` | Fired when the component becomes visible. |
+| `close` | `Modal`, `Dialog`, `Toast` | Fired when the component is dismissed or hidden. |
+
+### Actions
+
+| Action | Syntax | Description |
+|--------|--------|-------------|
+| `navigate` | `navigate PageName(param: value)` | Navigate to another page, optionally passing parameters. |
+| `back` | `back()` | Navigate to the previous page. No-op if there is no history. |
+| `toggle` | `toggle(variable)` | Shortcut for `variable = !variable`. Works with any boolean state variable. |
+| `log` | `log(message)` | Print a debug message to the runtime console. No effect in production. |
+
+### Component Properties
+
+| Property | Applies To | Values | Description |
+|----------|------------|--------|-------------|
+| `align` | Any component in a `row` or `column` | `(vertical, horizontal)` where vertical: `top`, `center`, `bottom`; horizontal: `left`, `center`, `right` | Alignment within the parent layout. |
+| `weight` | Any component in a `row` or `column` | `horizontal`, `vertical`, `both` | How the component fills available space. |
+| `wrap` | `row` layout | `true`, `false` | Whether items wrap to the next line when they exceed the container width. |
+| `placeholder` | `Input` | `string` | Hint text displayed inside the field when it is empty. |
+| `required` | `Input`, `Select`, `Checkbox` | `true`, `false` | Marks the field as required for form validation. |
+| `disabled` | Any interactive component | `true`, `false` | Disables the component, preventing interaction. |
+| `variant` | `Alert` | `info`, `success`, `warning`, `error` | Semantic variant indicating the type or severity of the message. |
+| `src` | `Image` | `string` | Source URL for the image content. |
 
 ## 9. Modularity and Imports
 InterSpec supports modular file structures. You can import specific files, entire folders, or even remote files via URL. Remote imports are strictly sandboxed (they can only contain InterSpec code).

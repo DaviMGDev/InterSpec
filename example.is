@@ -1,15 +1,16 @@
 // InterSpec Example
-// A comprehensive demonstration of the InterSpec language features.
+// A comprehensive demonstration of the InterSpec language features,
+// including all built-in components, events, actions, and properties.
 
 // ---------------------------------------------------------------------------
 // 1. Variables & Data Types
 // ---------------------------------------------------------------------------
 
-state greeting = "Hello, World!"       // string
-const maxRetries = 3                   // number
-state isActive = true                  // boolean
-state items = ["Apple", "Banana"]      // array
-state metadata = { version: 1 }        // object
+state greeting = "Hello, World!"          // string
+const maxRetries = 3                      // number
+state isActive = true                     // boolean
+state items = ["Apple", "Banana"]         // array
+state metadata = { version: 1 }           // object
 
 // Dynamic typing allows reassignment to a different type
 state flexible = "text"
@@ -26,7 +27,7 @@ Text("Item count: ${items.length}")
 // 2. Control Flow
 // ---------------------------------------------------------------------------
 
-state fruits = ["Apple", "Banana", "Cherry"]
+state fruits = ["Apple", "Banana", "Cherry", "Mango"]
 state showDetails = true
 
 for fruit in fruits {
@@ -40,21 +41,23 @@ if showDetails {
 }
 
 // ---------------------------------------------------------------------------
-// 3. Component Declaration
+// 3. Custom Component Declaration
 // ---------------------------------------------------------------------------
 
 // A reusable component with a parameter.
 // The component itself is neutral (renders no wrapper node).
 component FruitCard(name) {
+    Icon("star")
     Text(name)
     Text("---")
 }
 
 // Instantiation: children passed in the block are appended to the end.
 // Rendered order:
-//   1. Text(name)        <- from declaration
-//   2. Text("---")       <- from declaration
-//   3. Text("child")     <- from instantiation block
+//   1. Icon("star")      <- from declaration
+//   2. Text(name)        <- from declaration
+//   3. Text("---")       <- from declaration
+//   4. Text("child")     <- from instantiation block
 FruitCard("Mango") {
     Text("child")
 }
@@ -84,60 +87,55 @@ Text("Centered text") {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Events & Reactivity
-// ---------------------------------------------------------------------------
-
-state counter = 0
-
-Button("Increment") {
-    on click {
-        counter = counter + 1
-    }
-}
-
-Button("Hover me") {
-    on hover {
-        Tooltip("You are hovering!")
-    }
-}
-
-// Reactive state watcher
-on change(counter) {
-    Toast("Counter changed from ${old(counter)} to ${counter}")
-}
-
-// ---------------------------------------------------------------------------
-// 6. Pages & Navigation
-// ---------------------------------------------------------------------------
-
-page Settings(theme) {
-    Text("Current theme: ${theme}")
-
-    Button("Go back") {
-        on click {
-            navigate Home()
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// 7. Main Entry Point
+// 5. Main Entry Point
 // ---------------------------------------------------------------------------
 
 page Main() {
     state selected = "None"
     state count = 0
+    state volume = 50
+    state notify = true
+    state showConfirm = false
+
+    // Reactive watcher — triggers whenever selected changes
+    on change(selected) {
+        log("Selected fruit: ${selected}")
+        Toast("You picked ${selected}")
+    }
 
     column {
-        Text("InterSpec Demo") {
+        // Header
+        Text("Fruit Shop Prototype") {
             weight: horizontal
         }
 
-        // Variable display
-        Text("Selected: ${selected}")
-        Text("Count: ${count}")
+        // -- Card with Input, Icon, and Alert --
+        Card("Search fruits") {
+            row {
+                Icon("search")
+                Input("Type a fruit name...") {
+                    placeholder: "e.g. Apple"
+                    required: true
+                    on input {
+                        log("Searching: ${value}")
+                    }
+                    on focus {
+                        Toast("Search field focused")
+                    }
+                    on blur {
+                        Toast("Search field blurred")
+                    }
+                }
+            }
+            Alert("Results will appear here") {
+                variant: info
+            }
+        }
 
-        // Layout demo
+        // -- Selection display --
+        Text("Selected: ${selected}  |  Count: ${count}")
+
+        // -- Row of fruit buttons --
         row {
             wrap: true
 
@@ -163,11 +161,222 @@ page Main() {
             }
         }
 
-        // Navigation
-        Button("Open settings") {
-            on click {
-                navigate Settings(theme: "dark")
+        // -- Card with Select, Checkbox, and disabled Button --
+        Card("Preferences") {
+            Text("Choose a favorite:")
+            Select(["Apple", "Banana", "Cherry", "Mango"])
+
+            Checkbox("Subscribe to newsletter")
+            Checkbox("Enable dark mode") {
+                disabled: true
+            }
+
+            Button("Submit order") {
+                disabled: true
+                on click {
+                    Toast("Order submitted!")
+                }
             }
         }
+
+        // -- Card with Toggle, Slider, and Toggle action --
+        Card("Settings") {
+            row {
+                Text("Notifications")
+                Toggle("Enabled") {
+                    on click {
+                        toggle(notify)
+                    }
+                }
+            }
+
+            row {
+                Text("Volume: ${volume}")
+                Slider()
+            }
+        }
+
+        // -- Image placeholder --
+        Image("https://example.com/fruit-banner.png")
+
+        // -- Alert variants --
+        Alert("Item added to cart") {
+            variant: success
+        }
+        Alert("Your session is expiring") {
+            variant: warning
+        }
+        Alert("Payment failed") {
+            variant: error
+        }
+
+        // -- Cards loop using custom component --
+        for fruit in fruits {
+            FruitCard(fruit) {
+                Button("Select ${fruit}") {
+                    on click {
+                        selected = fruit
+                        count = count + 1
+                    }
+                }
+            }
+        }
+
+        // -- Dialog demo --
+        Button("Delete all items") {
+            on click {
+                showConfirm = true
+            }
+        }
+
+        // -- Modal with open/close events --
+        Button("Open info modal") {
+            on click {
+                openModal = true
+            }
+        }
+    }
+
+    // Modal is declared outside the column, at page level
+    state openModal = false
+
+    Modal("About Fruit Shop") {
+        on open {
+            log("Modal opened")
+        }
+        on close {
+            log("Modal closed")
+            openModal = false
+        }
+
+        Text("This is a wireframe prototype built with InterSpec.")
+        Text("Version 2.0")
+
+        Button("Close") {
+            on click {
+                openModal = false
+            }
+        }
+    }
+
+    if openModal {
+        // Modal is shown when openModal is true
+    }
+
+    // Dialog for destructive action confirmation
+    if showConfirm {
+        Dialog("Are you sure?") {
+            Text("This will clear your entire fruit list.")
+
+            Button("Cancel") {
+                on click {
+                    showConfirm = false
+                }
+            }
+
+            Button("Delete all") {
+                on click {
+                    showConfirm = false
+                    selected = "None"
+                    count = 0
+                    Toast("List cleared")
+                }
+            }
+        }
+    }
+
+    // Navigation button
+    Button("Open settings") {
+        on click {
+            navigate Settings(theme: "dark", volume: volume)
+        }
+    }
+
+    // Hover tooltip demo
+    Button("Hover me") {
+        on hover {
+            Tooltip("This is a tooltip!")
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 6. Settings Page
+// ---------------------------------------------------------------------------
+
+page Settings(theme, volume) {
+    state isDark = false
+    state notificationsEnabled = true
+
+    on change(isDark) {
+        Alert("Theme preference updated") {
+            variant: info
+        }
+    }
+
+    column {
+        Text("Settings") {
+            weight: horizontal
+        }
+
+        Text("Current theme: ${theme}")
+        Text("Default volume: ${volume}")
+
+        Card("Display") {
+            Toggle("Dark mode") {
+                on click {
+                    toggle(isDark)
+                }
+            }
+        }
+
+        Card("Notifications") {
+            Checkbox("Push notifications")
+            Checkbox("Email digests")
+        }
+
+        // Alert with different variants
+        Alert("Dark mode is ${isDark ? \"on\" : \"off\"}") {
+            variant: isDark ? success : info
+        }
+
+        // Back navigation
+        Button("← Back to shop") {
+            on click {
+                back()
+            }
+        }
+
+        // Modal demo in settings
+        Button("Help") {
+            on click {
+                openHelp = true
+            }
+        }
+    }
+
+    state openHelp = false
+
+    Modal("Help") {
+        on open {
+            log("Help modal opened")
+        }
+        on close {
+            log("Help modal closed")
+            openHelp = false
+        }
+
+        Text("InterSpec is a wireframing language.")
+        Text("It has no styling — only structure.")
+
+        Button("Got it") {
+            on click {
+                openHelp = false
+            }
+        }
+    }
+
+    if openHelp {
+        // Help modal is shown
     }
 }
