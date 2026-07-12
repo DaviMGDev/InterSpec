@@ -109,7 +109,8 @@ InterSpec provides only two structural layouts: `row` and `column`. Granular spa
 ### Layouts
 ```interspec
 row {
-    wrap: true // Optional: allows items to wrap to the next line
+    wrap: true    // Optional: allows items to wrap to the next line
+    collapse: true // Optional: auto-collapse to column on narrow viewports
     Text("Item 1")
     Text("Item 2")
 }
@@ -210,7 +211,7 @@ Button("Toggle") {
 | `Button` | `label` | A clickable button that triggers actions. |
 | `Text` | `content` | Renders a string of text. |
 | `Input` | `placeholder` | A single-line text input field for user entry. |
-| `Select` | `options` | A dropdown picker. Pass an array of strings or objects as options. |
+| `Select` | `options` | A dropdown picker for selecting a value. Pass an array of strings or objects. Distinct from `DropdownMenu` which triggers actions. |
 | `Checkbox` | `label` | A toggleable checkbox with an adjacent label. |
 | `Toggle` | `label` | A boolean on/off toggle switch with a label. |
 | `Slider` | — | A range slider for numeric selection. |
@@ -222,6 +223,19 @@ Button("Toggle") {
 | `Dialog` | `title` | A confirmation or information dialog that requires user action. |
 | `Toast` | `message` | A brief, auto-dismissing pop-up notification. |
 | `Tooltip` | `content` | A hover-revealed tooltip that displays contextual information. |
+| `Table` | `columns`, `rows` | Tabular data display. `columns` is an array of header strings. `rows` is an array of row arrays. |
+| `Tabs` | `tabs` | Tabbed content panel. `tabs` is an array of label strings. Children are panel bodies, matched by position to the labels. |
+| `Accordion` | `items` | Expandable sections. `items` is an array of title strings. Children are section bodies, matched by position. Only one section is expanded at a time. |
+| `Badge` | `label` | Inline indicator for status, count, or category. Use `variant` for semantic type. |
+| `Link` | `label` | A navigational element distinct from action `Button`. Use `navigate` via `on click` to specify the target page. No `href` — InterSpec has no network access. |
+| `Progress` | `value` | Read-only progress indicator. `value` is a number. Use `max` property to set the upper bound (default 100). |
+| `EmptyState` | `message` | Placeholder for empty lists or search results. Children can provide a recovery action (e.g., a `Button` to create an item). |
+| `Breadcrumb` | `items` | Navigation path trail. `items` is an array of label strings. The last item represents the current page. |
+| `Stepper` | `steps` | Multi-step flow indicator (read-only). `steps` is an array of label strings. Use `current` property to mark the active step. |
+| `Pagination` | — | Page navigation control for paginated lists. Use `current` and `total` properties. |
+| `DropdownMenu` | `label` | A command menu that triggers actions (not a form input). Distinct from `Select` which returns a value. Children define the menu items as `Button` components. |
+| `Section` | `title` | Structural content grouping under a heading. Groups related components without implying a card/border — purely architectural. |
+| `Form` | — | Groups related inputs under a submission action. Fires a `submit` event when the user submits the form. |
 
 #### Usage Examples
 
@@ -235,7 +249,7 @@ Card("User Profile") {
 // Input — text entry field
 Input("Enter your name...")
 
-// Select — dropdown with options
+// Select — dropdown for picking a value
 Select(["Apple", "Banana", "Cherry"])
 
 // Image — placeholder with source URL
@@ -248,6 +262,85 @@ Icon("settings")
 Alert("File saved successfully") {
     variant: success
 }
+
+// Table — data display
+Table(["Name", "Role"], [
+    ["Alice", "Admin"],
+    ["Bob", "User"]
+])
+
+// Tabs — tabbed panels
+Tabs(["First", "Second"]) {
+    Text("Content for first tab")
+    Text("Content for second tab")
+}
+
+// Accordion — expandable sections
+Accordion(["FAQ 1", "FAQ 2"]) {
+    Text("Answer to FAQ 1")
+    Text("Answer to FAQ 2")
+}
+
+// Badge — status indicator
+Badge("New") {
+    variant: success
+}
+
+// Link — navigational (no href — use navigate)
+Link("View Profile") {
+    on click {
+        navigate UserProfile(userId: 42)
+    }
+}
+
+// Progress — read-only indicator
+Progress(60) {
+    max: 100
+}
+
+// EmptyState — nothing here yet
+EmptyState("No results found") {
+    Button("Create one") {
+        on click { navigate NewItem() }
+    }
+}
+
+// Breadcrumb — path trail
+Breadcrumb(["Home", "Products", "Details"])
+
+// Stepper — multi-step progress
+Stepper(["Cart", "Shipping", "Payment"]) {
+    current: 0
+}
+
+// Pagination — page control
+Pagination {
+    current: 1
+    total: 10
+}
+
+// DropdownMenu — action menu
+DropdownMenu("Actions") {
+    Button("Edit") { on click { navigate Editor() } }
+    Button("Delete") { on click { Dialog("Confirm delete") } }
+}
+
+// Section — structural grouping
+Section("User Details") {
+    Text("Name: Alice")
+    Text("Role: Admin")
+}
+
+// Form — grouped inputs with submit
+Form {
+    Input("Email") {
+        required: true
+        error: "Please enter a valid email"
+    }
+    Button("Submit") {
+        on click { validate() }
+    }
+}
 ```
 
 ### Events
@@ -257,10 +350,15 @@ Alert("File saved successfully") {
 | `click` | `Button`, `Checkbox`, `Toggle`, `Card` | Fired when the user clicks or taps the component. |
 | `hover` | `Button`, `Tooltip`, `Card`, `Icon` | Fired when the user hovers the cursor over the component. |
 | `input` | `Input`, `Select` | Fired on every value change (e.g., each keystroke in an `Input`). |
+| `commit` | `Input`, `Select` | Fired when the user confirms a value (blur after change, Enter key, or dropdown close). Distinct from `input` which fires per keystroke. |
 | `focus` | `Input`, `Button`, `Select` | Fired when the component receives focus. |
 | `blur` | `Input`, `Button`, `Select` | Fired when the component loses focus. |
 | `open` | `Modal`, `Dialog`, `Toast` | Fired when the component becomes visible. |
 | `close` | `Modal`, `Dialog`, `Toast` | Fired when the component is dismissed or hidden. |
+| `submit` | `Form` | Fired when the form is submitted (via Enter key or submit button). |
+| `key` | `Input` | Fired on key press. Takes a key name argument: `on key("Enter") { ... }`, `on key("Escape") { ... }`. |
+| `longpress` | `Button`, `Card`, any interactive component | Fired on touch-hold (mobile interaction). |
+| `reachEnd` | scrollable `column`, `row` | Fired when the user scrolls to the end of the container. Use for infinite scroll or "load more" patterns. |
 
 ### Actions
 
@@ -270,6 +368,9 @@ Alert("File saved successfully") {
 | `back` | `back()` | Navigate to the previous page. No-op if there is no history. |
 | `toggle` | `toggle(variable)` | Shortcut for `variable = !variable`. Works with any boolean state variable. |
 | `log` | `log(message)` | Print a debug message to the runtime console. No effect in production. |
+| `validate` | `validate()` | Trigger form validation programmatically. Checks all `required` and `error` constraints within the enclosing `Form`. |
+| `reset` | `reset(variable)` | Reset a state variable to its declared initial value. Consistent with `toggle()` as a convenience action. |
+| `delay` | `delay(ms, action)` | Execute an action after a delay in milliseconds. Runtime-enforced to prevent infinite chains (same guard as `for` loops). |
 
 ### Component Properties
 
@@ -278,11 +379,17 @@ Alert("File saved successfully") {
 | `align` | Any component in a `row` or `column` | `(vertical, horizontal)` where vertical: `top`, `center`, `bottom`; horizontal: `left`, `center`, `right` | Alignment within the parent layout. |
 | `weight` | Any component in a `row` or `column` | `horizontal`, `vertical`, `both` | How the component fills available space. |
 | `wrap` | `row` layout | `true`, `false` | Whether items wrap to the next line when they exceed the container width. |
+| `collapse` | `row` layout | `true`, `false` | Whether the row automatically collapses to a column on narrow viewports. The runtime chooses the breakpoint. |
 | `placeholder` | `Input` | `string` | Hint text displayed inside the field when it is empty. |
 | `required` | `Input`, `Select`, `Checkbox` | `true`, `false` | Marks the field as required for form validation. |
 | `disabled` | Any interactive component | `true`, `false` | Disables the component, preventing interaction. |
-| `variant` | `Alert` | `info`, `success`, `warning`, `error` | Semantic variant indicating the type or severity of the message. |
+| `loading` | `Button`, `Card`, `Table`, `Image` | `true`, `false` | Indicates an async operation is in progress. Implies `disabled` when `true`. |
+| `error` | `Input`, `Select` | `true`, `false`, or a message string | Marks the field as having a validation error. When a string is provided, it is shown as the error message. |
+| `variant` | `Alert`, `Badge` | `info`, `success`, `warning`, `error` | Semantic variant indicating the type or severity. |
 | `src` | `Image` | `string` | Source URL for the image content. |
+| `max` | `Progress` | `number` | Upper bound for the progress value. Defaults to 100. |
+| `current` | `Stepper`, `Pagination` | `number` (0-indexed for Stepper, 1-indexed for Pagination) | The active step or page. |
+| `total` | `Pagination` | `number` | Total number of pages. |
 
 ## 9. Modularity and Imports
 InterSpec supports modular file structures. You can import specific files, entire folders, or even remote files via URL. Remote imports are strictly sandboxed (they can only contain InterSpec code).

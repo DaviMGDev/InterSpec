@@ -98,6 +98,7 @@ The entry point is always `Main()`.
 ```interspec
 row {
     wrap: true
+    collapse: true    // auto-collapse to column on narrow viewports
     Text("Item 1")
     Text("Item 2")
 }
@@ -136,12 +137,21 @@ if show {
 Button("Click me") {
     on click { navigate OtherPage() }
     on hover { Tooltip("Info") }
+    on longpress { Dialog("Options") }
 }
 
 Input("Name") {
     on input  { log(value) }
+    on commit { log("Confirmed: " + value) }
     on focus  { Toast("Focused") }
     on blur   { Toast("Blurred") }
+    on key("Enter") { validate() }
+    on key("Escape") { searchTerm = "" }
+}
+
+Form {
+    on submit { validate() }
+    // ... inputs ...
 }
 ```
 
@@ -162,7 +172,9 @@ back()
 ## Built-in Components (quick list)
 
 Button, Text, Input, Select, Checkbox, Toggle, Slider, Image, Icon, Alert,
-Card, Modal, Dialog, Toast, Tooltip.
+Card, Modal, Dialog, Toast, Tooltip, Table, Tabs, Accordion, Badge, Link,
+Progress, EmptyState, Breadcrumb, Stepper, Pagination, DropdownMenu, Section,
+Form.
 
 For the full catalog with parameters, events, and properties, see
 [the component reference](references/CATALOG.md).
@@ -179,7 +191,7 @@ import "https://cdn.example.com/ui/buttons.is"
 - Entry page is `page Main()`.
 - All custom components use PascalCase; all variables use camelCase or snake_case.
 - No `$` prefix on variable access; `${}` only inside strings.
-- Only `row` and `column` for layout; use `wrap: true` for wrapping.
+- Only `row` and `column` for layout; use `wrap: true` for wrapping and `collapse: true` for responsive collapse.
 - Children passed at instantiation append to the **end** of the component body.
 - No styling properties (colors, fonts, spacing, pixel values).
 - `for` loops iterate over arrays â€” never write unbounded loops.
