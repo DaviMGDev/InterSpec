@@ -102,6 +102,10 @@ cd isc
 go test ./...
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and pull request guidelines.
+
 ## License
 
-TBD
+MIT — see [LICENSE](LICENSE) for details.
