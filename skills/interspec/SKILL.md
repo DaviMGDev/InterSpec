@@ -24,7 +24,9 @@ InterSpec is a **declarative UI specification language**. It describes
 it as executable wireframes.
 
 **Golden rule:** If the user asks for visual styling, explain that InterSpec
-is intentionally style-free and focus on structure and interaction.
+is intentionally style-free and focus on structure and interaction. If they
+need to communicate visual intent without breaking the no-styling rule, use
+`@` hints instead.
 
 ## Critical Rules (Read First)
 
@@ -70,7 +72,38 @@ wrapping.
 InterSpec is sandboxed. No network, file system, or database access. Only
 InterSpec logic executes.
 
+### 6. Hints use `@` / `@* *@` — they survive stripping and guide implementers
+Single-line hints start with `@` and run to end of line. Multi-line hints use
+`@* ... *@` blocks. Hints are freeform text — no grammar, no validation. They
+pass through `isc strip` unchanged and are ignored by deterministic transpilers.
+Use hints to communicate visual hierarchy, responsive intent, accessibility,
+spacing, animation, or any other implementer guidance.
+
+```interspec
+@ This is the primary action on the page — make it prominent
+Button("Save") { ... }
+
+@*
+  On mobile: single column, full width.
+  On tablet and up: two-column grid.
+*@
+row { ... }
+```
+
 ## Syntax Quick Reference
+
+### Hints
+```interspec
+@ Single-line hint — guides the implementer
+
+@*
+  Multi-line hint block.
+  Everything between @* and *@ is guidance.
+*@
+```
+Hints have no runtime effect. They survive `isc strip` and are ignored by
+transpilers. Use them to communicate visual hierarchy, responsive intent,
+accessibility, or spacing decisions.
 
 ### Variables
 ```interspec
@@ -188,18 +221,22 @@ import "https://cdn.example.com/ui/buttons.is"
 ```
 
 ## Authoring Checklist
-- Entry page is `page Main()`.
+- Entry page is `page Main()`. Add a top-of-file `@* ... *@` hint describing the overall purpose.
 - All custom components use PascalCase; all variables use camelCase or snake_case.
 - No `$` prefix on variable access; `${}` only inside strings.
 - Only `row` and `column` for layout; use `wrap: true` for wrapping and `collapse: true` for responsive collapse.
 - Children passed at instantiation append to the **end** of the component body.
-- No styling properties (colors, fonts, spacing, pixel values).
+- No styling properties (colors, fonts, spacing, pixel values). Use `@` hints if the implementer needs visual guidance.
 - `for` loops iterate over arrays â€” never write unbounded loops.
+- Use `@` for brief hints (one line) and `@* ... *@` for detailed guidance (multiple sentences).
+- Prefer hints over comments for anything the implementer needs to see.
 
 ## Common Patterns
 
 ### List with interactive items
 ```interspec
+@* Show items as cards with a select button.
+   Each selection increments the count. *@
 page Main() {
     state items = ["Apple", "Banana", "Cherry"]
     state selected = 0
@@ -209,6 +246,7 @@ page Main() {
     }
 
     column {
+        @ Compact cards — minimal padding between items
         for fruit in items {
             Card(fruit) {
                 Button("Pick ${fruit}") {
@@ -222,11 +260,15 @@ page Main() {
 
 ### Form with validation
 ```interspec
+@* This form collects user email and consent.
+   Keep the layout simple — labels above inputs,
+   with clear error states for validation. *@
 page Main() {
     state email = ""
     state agreed = false
 
     column {
+        @ Primary input — wide, full width
         Input("Email") {
             required: true
             on input { log("email: ${value}") }
@@ -234,6 +276,7 @@ page Main() {
         Checkbox("I agree") {
             required: true
         }
+        @ Primary CTA — most visually prominent button on the page
         Button("Submit") {
             on click { Dialog("Confirm submission") }
         }

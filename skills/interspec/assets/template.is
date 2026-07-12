@@ -1,16 +1,23 @@
 // InterSpec application template
 // Replace this with your UI specification
 
+@* Entry point of the application.
+   Customize the title and CTA for your use case.
+   Keep the layout centered and minimal. *@
+
 page Main() {
+    @ Change this to your app's name
     state title = "My App"
 
     column {
         align: (center, center)
 
+        @ The app title — large and centered at the top
         Text(title) {
             weight: horizontal
         }
 
+        @ Primary action — the main call-to-action button
         Button("Get Started") {
             on click {
                 Toast("Welcome!")

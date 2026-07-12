@@ -49,9 +49,13 @@ page UserProfile(userId) {
 
 ## Modal with Toggle State
 ```interspec
+@* Modal appears as an overlay on top of the page content.
+   On mobile, it should fill the screen. On desktop,
+   show it as a centered dialog with a backdrop. *@
 page Main() {
     state modalOpen = false
 
+    @ Primary trigger — clearly indicate this opens a dialog
     Button("Open Modal") {
         on click {
             toggle(modalOpen)
@@ -60,6 +64,7 @@ page Main() {
 
     if modalOpen {
         Modal("Confirmation") {
+            @ Destructive action — give "Confirm" prominent warning styling
             Text("Are you sure?")
             Button("Confirm") {
                 on click {
@@ -95,6 +100,10 @@ page Main() {
 
 ## Table with Empty State
 ```interspec
+@*
+  Desktop: show the full table with all columns visible.
+  Mobile: collapse to a stacked card layout (label-value pairs).
+  The EmptyState should be centered with breathing room. *@
 page Main() {
     state users = [["Alice", "Admin"], ["Bob", "User"]]
 
@@ -223,16 +232,17 @@ page Main() {
 ```interspec
 page Main() {
     column {
+        @ Breadcrumb: small muted text, current page ("Widget") not clickable
         Breadcrumb(["Home", "Products", "Widget"])
 
-        // Link — navigational, not actional
+        @ Link: underlined text, no button styling — distinct from action buttons
         Link("Back to Products") {
             on click {
                 navigate Products()
             }
         }
 
-        // Button — triggers an action
+        @ Primary CTA — filled button, full-width on mobile
         Button("Buy Now") {
             on click {
                 navigate Checkout()

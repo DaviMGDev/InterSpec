@@ -80,3 +80,18 @@
 | `max`         | `Progress`                       | number (default 100) |
 | `current`     | Stepper, Pagination              | number (0-indexed for Stepper, 1-indexed for Pagination) |
 | `total`       | `Pagination`                     | number |
+
+## Hints
+
+Any component, layout, or page can carry `@` hints — freeform annotations that
+survive `isc strip` and guide the implementer without affecting runtime behavior.
+
+| Form | Syntax | Example |
+|------|--------|---------|
+| Single-line | `@ text` | `@ Primary action — make this button prominent` |
+| Block | `@* ... *@` | `@* On mobile, stack vertically. *@` |
+
+Hints have **no grammar, no validation, and no runtime effect.** They are
+freeform prose for the developer or AI translating the spec into a real UI.
+See [the language spec](../../LANGUAGE.md#10-hints-and-annotations) for full
+details.
