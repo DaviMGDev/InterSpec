@@ -2,6 +2,10 @@
 // A comprehensive demonstration of the InterSpec language features,
 // including all built-in components, events, actions, and properties.
 
+@* This example demonstrates every InterSpec language feature.
+   Use it as a reference when implementing a runtime or
+   building real .is files. Each section covers one concept. *@
+
 // ---------------------------------------------------------------------------
 // 1. Variables & Data Types
 // ---------------------------------------------------------------------------
@@ -12,7 +16,7 @@ state isActive = true                     // boolean
 state items = ["Apple", "Banana"]         // array
 state metadata = { version: 1 }           // object
 
-// Dynamic typing allows reassignment to a different type
+@ Dynamic typing: the same variable can hold strings and numbers
 state flexible = "text"
 flexible = 42
 
@@ -44,20 +48,16 @@ if showDetails {
 // 3. Custom Component Declaration
 // ---------------------------------------------------------------------------
 
-// A reusable component with a parameter.
-// The component itself is neutral (renders no wrapper node).
+@ A neutral card component — wraps no extra node, children append after content
 component FruitCard(name) {
     Icon("star")
     Text(name)
     Text("---")
 }
 
-// Instantiation: children passed in the block are appended to the end.
-// Rendered order:
-//   1. Icon("star")      <- from declaration
-//   2. Text(name)        <- from declaration
-//   3. Text("---")       <- from declaration
-//   4. Text("child")     <- from instantiation block
+@* Children passed during instantiation are always appended to the end.
+   Rendered output order: 1. Icon("star")  2. Text(name)
+   3. Text("---")  4. Text("child") *@
 FruitCard("Mango") {
     Text("child")
 }
@@ -139,6 +139,7 @@ page Main() {
         row {
             wrap: true
 
+            @ These three buttons form a group of equal visual weight — no primary/secondary distinction
             Button("Apples") {
                 on click {
                     selected = "Apples"
@@ -171,6 +172,7 @@ page Main() {
                 disabled: true
             }
 
+            @ Disabled until at least one preference is selected — show it greyed out
             Button("Submit order") {
                 disabled: true
                 on click {
@@ -196,7 +198,7 @@ page Main() {
             }
         }
 
-        // -- Image placeholder --
+        @ Decorative banner — use an empty alt attribute in the final implementation
         Image("https://example.com/fruit-banner.png")
 
         // -- Alert variants --
@@ -222,7 +224,7 @@ page Main() {
             }
         }
 
-        // -- Dialog demo --
+        @ Destructive action — give this button prominent warning styling (red / danger variant)
         Button("Delete all items") {
             on click {
                 showConfirm = true
@@ -285,7 +287,7 @@ page Main() {
         }
     }
 
-    // Navigation button
+    @ Secondary navigation — visually lighter than the main action buttons
     Button("Open settings") {
         on click {
             navigate Settings(theme: "dark", volume: volume)
@@ -299,6 +301,10 @@ page Main() {
         }
     }
 }
+
+@* The settings page uses a stacked column layout.
+   On narrow viewports, cards can span full width.
+   On desktop, consider constraining to a max-width container. *@
 
 // ---------------------------------------------------------------------------
 // 6. Settings Page

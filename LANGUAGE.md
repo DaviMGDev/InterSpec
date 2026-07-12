@@ -457,3 +457,133 @@ page Main() {
     }
 }
 ```
+
+## 10. Hints and Annotations
+
+InterSpec provides a lightweight hint system for communicating **implementer guidance** directly inside `.is` files. Hints carry information about visual hierarchy, responsive intent, accessibility, spacing, animation, priority — anything that would help a developer or AI implement the interface faithfully.
+
+### Philosophy
+
+Hints occupy a tier between comments and properties:
+
+| Construct | Syntax | Stripped by `isc strip`? | Transpiler sees? | Human/AI sees? |
+|-----------|--------|------------------------|------------------|----------------|
+| Comment | `//`, `/* */` | ✅ Removed | ❌ No | ❌ No |
+| **Hint** | **`@ ...`**, **`@* ... *@`** | **❌ Kept** | **❌ Ignores** | **✅ Yes** |
+| Property | `variant:`, `disabled:` | ❌ Kept | ✅ Enforces | ✅ Yes |
+
+Hints are:
+- **Freeform text** — no grammar, no parsing, no validation. Any text after `@` is valid.
+- **Persistent** — they survive `isc strip` unchanged.
+- **Non-enforced** — deterministic transpilers and runtimes ignore them entirely.
+- **Human-first** — their audience is the person or AI that will translate the spec into a real UI.
+
+### Syntax
+
+#### Single-line hints
+
+```interspec
+@ This button is the primary call-to-action
+Button("Save") {
+    on click { submit() }
+}
+```
+
+A single `@` begins a hint that runs to the end of the line. The space after `@` is conventional but not required.
+
+#### Multi-line block hints
+
+```interspec
+@*
+  On mobile, stack these fields vertically.
+  On tablet and up, use a two-column grid.
+  Keep labels above inputs for readability.
+*@
+Form {
+    Input("First Name")
+    Input("Last Name")
+    Input("Email")
+}
+```
+
+`@*` opens the block, `*@` closes it. Everything between is hint text. Blocks close at the first `*@` — nesting is not supported.
+
+### Where hints can appear
+
+Hints are valid anywhere in a `.is` file:
+
+- **File-level** — top-of-file notes about the overall spec
+- **Before a declaration** — single component or block
+- **Inside a component block** — alongside properties and events
+- **Between declarations** — separated by blank lines
+
+```interspec
+@* This page handles user onboarding.
+   Keep the flow linear — one step at a time.
+   Avoid modals on mobile. *@
+
+page WelcomeWizard() {
+    @ Compact layout — no extra spacing between sections
+    column {
+        Text("Step 1 of 3")
+
+        Input("Full Name") {
+            @ Consider adding autocomplete attributes for common name patterns
+            required: true
+            on commit { log("name: " + value) }
+        }
+
+        Button("Continue") {
+            @ Primary action — make this visually prominent
+            on click { navigate StepTwo() }
+        }
+    }
+}
+```
+
+### Suggested uses
+
+Hints have no fixed categories, but common applications include:
+
+| Purpose | Example |
+|---------|---------|
+| **Visual hierarchy** | `@ Primary action — most prominent button on the page` |
+| **Responsive intent** | `@ On mobile, replace this table with a card list` |
+| **Accessibility** | `@ This image is decorative — use empty alt text` |
+| **Spacing / density** | `@ Compact layout — minimize vertical gaps` |
+| **Animation intent** | `@ Animate this card when it appears (fade + slide up)` |
+| **Priority** | `@ High-priority: implement this first` |
+| **Platform nuance** | `@ Desktop: show full table. Mobile: show first 3 columns` |
+| **Destructive actions** | `@ Destructive — give this button prominent warning styling` |
+
+### Notes on stripper interaction
+
+The `isc strip` command strips `//` line comments and `/* */` block comments. Since hints use `@` and `@* *@` (not `/`), they are **not affected** by the stripper and pass through verbatim.
+
+However, there is one interaction to be aware of:
+
+- **Avoid `//` inside a single-line hint.** The character sequence `//` is always treated as a comment opener by `isc strip`, even if it appears after `@`. Everything from `//` to the end of the line will be removed.
+
+  ```interspec
+  @ Avoid this // everything after // is stripped
+  @ Use a separate line instead — no slashes needed
+  ```
+
+- **`//` and `/*` inside `@* ... *@` blocks** are similarly treated as comment delimiters by the stripper. If your hint needs to mention URLs or code that contain slashes, rephrase to avoid literal `//` or `/*` inside the block.
+
+  ```interspec
+  @* Do this: reference the style guide at example.com
+     Not this: https://example.com/docs (the // would cause issues) *@
+  ```
+
+### Relationship to comments
+
+| Aspect | Comment (`//`, `/* */`) | Hint (`@`, `@* *@`) |
+|--------|------------------------|---------------------|
+| Audience | Developer of the `.is` file | Implementer of the final UI |
+| Survival | Stripped by `isc strip` | Survives `isc strip` |
+| Runtime | Removed before execution | Ignored (treated as code text) |
+| Tone | Internal notes, TODOs, explanations | External guidance, design intent |
+| Parsing | Recognized by the parser | Transparent to the parser |
+
+Use comments for notes about the spec itself. Use hints for guidance about the final implementation.
