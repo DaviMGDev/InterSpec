@@ -500,7 +500,7 @@ page Main() {
 
 ## 10. Hints and Annotations
 
-InterSpec provides a lightweight hint system for communicating **implementer guidance** directly inside `.is` files. Hints carry information about visual hierarchy, responsive intent, accessibility, spacing, animation, priority — anything that would help a developer or AI implement the interface faithfully.
+InterSpec provides a lightweight hint system for communicating **implementer guidance** directly inside `.is` files. Hints carry information about semantic role, interaction semantics, responsive behavior, and structural constraints — anything that helps an implementer understand the intent behind the structure. Hints **must not** describe visual appearance (colors, typography, spacing values, animation curves, shadows, etc.) — those belong in the project's design system file (e.g., DESIGN.md). A hint is valid if and only if a human or AI implementer cannot generate a CSS property-value pair from it alone, without consulting a design system.
 
 ### Philosophy
 
@@ -563,7 +563,6 @@ Hints are valid anywhere in a `.is` file:
    Avoid modals on mobile. *@
 
 page WelcomeWizard() {
-    @ Compact layout — no extra spacing between sections
     column {
         Text("Step 1 of 3")
 
@@ -574,7 +573,7 @@ page WelcomeWizard() {
         }
 
         Button("Continue") {
-            @ Primary action — make this visually prominent
+            @ role: primary-action
             on click { navigate StepTwo() }
         }
     }
@@ -585,16 +584,30 @@ page WelcomeWizard() {
 
 Hints have no fixed categories, but common applications include:
 
-| Purpose | Example |
-|---------|---------|
-| **Visual hierarchy** | `@ Primary action — most prominent button on the page` |
-| **Responsive intent** | `@ On mobile, replace this table with a card list` |
-| **Accessibility** | `@ This image is decorative — use empty alt text` |
-| **Spacing / density** | `@ Compact layout — minimize vertical gaps` |
-| **Animation intent** | `@ Animate this card when it appears (fade + slide up)` |
-| **Priority** | `@ High-priority: implement this first` |
-| **Platform nuance** | `@ Desktop: show full table. Mobile: show first 3 columns` |
-| **Destructive actions** | `@ Destructive — give this button prominent warning styling` |
+| Purpose | Example | Domain |
+|---------|---------|--------|
+| **Semantic role** | `@ role: primary-action` | What the element *is* |
+| **Responsive intent** | `@ On mobile, replace this table with a card list` | What the element *does* at breakpoints |
+| **Accessibility** | `@ This image is decorative — use empty alt text` | Accessibility requirement |
+| **Behavioral constraint** | `@ constraint: viewport-safe` | How the element must *behave* spatially |
+| **Content relationship** | `@ This list is the source of truth for user picks` | How data *flows* |
+| **Platform nuance** | `@ Desktop: show full table. Mobile: show first 3 columns` | Cross-platform *behavior* differences |
+
+### Hint naming convention (recommended, not enforced)
+
+For consistency and machine-scannability, authors are encouraged to prefix
+hints with a category tag:
+
+| Prefix | Domain | Example |
+|--------|--------|---------|
+| `@ role:` | Semantic purpose of the element | `@ role: primary-action` |
+| `@ constraint:` | Behavioral boundary | `@ constraint: viewport-safe` |
+| `@ responsive:` | Cross-breakpoint behavior | `@ responsive: collapse-mobile` |
+| `@ a11y:` | Accessibility requirement | `@ a11y: decorative-img` |
+| `@ depends-on:` | Logical dependency | `@ depends-on: form-validation` |
+
+Hints without a recognized prefix are treated as informational prose —
+they carry intent but are not actionable by consuming tools or AIs.
 
 ### Notes on stripper interaction
 
@@ -625,6 +638,7 @@ However, there is one interaction to be aware of:
 | Runtime | Removed before execution | Ignored (treated as code text) |
 | Tone | Internal notes, TODOs, explanations | External guidance, design intent |
 | Parsing | Recognized by the parser | Transparent to the parser |
+| **Domain** | **Spec internals, rationale, WIP notes** | **Semantic role, behavioral constraint, content relationship** |
 
 Use comments for notes about the spec itself. Use hints for guidance about the final implementation.
 
@@ -713,8 +727,7 @@ While hints are freeform, the following tokens are **conventional signals** that
 |-------|---------|--------------------|
 | `@ viewport-safe` | This section must not overflow the viewport | Constrain height, apply overflow handling |
 | `@ scrollable` | This container should scroll when content exceeds space | Set bounded height, `overflow: auto` |
-| `@ constrained` | Limit width/height to viewport or parent bounds | Apply max-width/max-height, prevent edge-to-edge stretch |
-| `@ compact` | Minimize vertical space usage | Reduce padding, line-height, margins |
+| `@ constrained` | Limit width/height to viewport or parent bounds | Constrain to viewport or parent bounds — do not let it stretch beyond the available space |
 | `@ mobile-break` | Needs special handling on narrow screens | Implement responsive breakpoint behavior |
 
 These tokens are **not** parsed or enforced — they are prose conventions. The consuming skill (see `interspec-consume`) teaches implementers to recognize and act on them.
@@ -724,14 +737,6 @@ These tokens are **not** parsed or enforced — they are prose conventions. The 
 column {
     scrollable: true
     Table(columns, rows)
-}
-
-@ compact — minimize vertical space in this toolbar
-row {
-    wrap: true
-    Button("Filter")
-    Button("Sort")
-    Button("Export")
 }
 
 @ mobile-break — stack into single column on narrow viewports

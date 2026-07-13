@@ -152,7 +152,7 @@ page Main() {
         row {
             wrap: true
 
-            @ These three buttons form a group of equal visual weight — no primary/secondary distinction
+            @ equal-weight-group — no primary/secondary distinction
             Button("Apples") {
                 on click {
                     selected = "Apples"
@@ -185,7 +185,7 @@ page Main() {
                 disabled: true
             }
 
-            @ Disabled until at least one preference is selected — show it greyed out
+            @ disabled — depends on: preference-selection
             Button("Submit order") {
                 disabled: true
                 on click {
@@ -262,7 +262,7 @@ page Main() {
             }
         }
 
-        @ Destructive action — give this button prominent warning styling (red / danger variant)
+        @ role: destructive-action
         Button("Delete all items") {
             on click {
                 showConfirm = true
@@ -325,7 +325,7 @@ page Main() {
         }
     }
 
-    @ Secondary navigation — visually lighter than the main action buttons
+    @ role: secondary-navigation
     Button("Open settings") {
         on click {
             navigate Settings(theme: "dark", volume: volume)

@@ -161,18 +161,40 @@ Modals and drawers MUST NOT push page content down. They must:
 
 ## Viewport Hint Recognition
 
+**Critical rule: Hints describe role and behavior, not appearance.**
+Never generate CSS properties (color, font-size, padding, margin, gap,
+border-radius, animation-name, box-shadow, etc.) directly from hint text.
+If a hint labels a semantic role (e.g., `@ role: primary-action`), look up
+the corresponding visual token in the project's DESIGN.md. If a hint
+describes a behavioral constraint (e.g., `@ scrollable`), implement the
+constraint structurally — do not invent spacing, color, or typography values.
+
 When you encounter these hint tokens in `.is` files, take the specified action:
 
 | Token | Action |
 |-------|--------|
 | `@ viewport-safe` | Constrain this section to viewport height, apply overflow handling |
 | `@ scrollable` | Set bounded height on container, apply `overflow: auto` |
-| `@ constrained` | Apply `max-width` and/or `max-height`, prevent edge-to-edge stretch |
-| `@ compact` | Minimize padding, line-height, and margins in this section |
+| `@ constrained` | Constrain this section to viewport or parent bounds — the dimension values come from the design system, not from this hint |
 | `@ mobile-break` | Implement responsive breakpoint behavior (stack on narrow screens) |
 
 These are **not** optional suggestions — they are signals that the spec author
 identified a viewport risk. Always act on them.
+
+## Design System Resolution
+
+When a hint assigns a semantic role, resolve it against the project's design
+system before generating any visual output:
+
+| Hint | Look up in DESIGN.md | Generates |
+|------|---------------------|-----------|
+| `@ role: primary-action` | `components.button-primary` | Background, text color, padding, radius, typography |
+| `@ role: destructive-action` | `components.button-destructive` | Red/danger variant styling |
+| `@ role: secondary-navigation` | `components.link-secondary` | Muted text, no background |
+| `@ role: hero-zone` | Layout section (page-level pattern) | Max-width, centering, vertical spacing |
+
+If no DESIGN.md is present, apply platform-standard spacing and typography
+defaults — never derive visual values from the hint text itself.
 
 ## Common Pitfalls
 

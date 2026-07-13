@@ -1,9 +1,9 @@
 @*
   InterSpec Component Demo — Full Showcase
   Structural blueprint demonstrating built-in components, events, state,
-  control flow, navigation, parameterized pages, and extensive implementer hints.
-  No visual styling values (colors, fonts, spacing tokens) appear anywhere;
-  all visual intent is communicated through @ hints.
+  control flow, navigation, parameterized pages, and extensive implementer hints
+  communicating semantic role and behavioral constraint — visual intent is
+  deferred to the design system.
 *@
 
 // ── Reusable Custom Components ──────────────────────────────────────────────
@@ -59,21 +59,21 @@ page Main() {
     column {
         align: (center, top)
 
-        @* Hero zone: centered, large visual presence.
-           Title is the most prominent text on the page. *@
+        @* Hero zone: page-level entry point.
+           Title conveys the page purpose. *@
         column {
             align: (center, center)
             Badge("InterSpec 1.0") { variant: success }
             Text("Component Library") { weight: horizontal }
             Text("Explore every built-in component, event, and interaction pattern in one interactive showcase.")
             Button("Start Exploring ↓") {
-                @ Primary CTA — make this the most visually prominent button on the page
+                @ role: primary-cta
                 on click { Toast("Scroll down to browse all components") }
                 on longpress { Dialog("Ready to explore the component library?") }
             }
         }
 
-        @* Stats ribbon: three equal-width cards, centered horizontally. *@
+        @* Stats ribbon: three cards with equal structural weight in a row. *@
         row {
             align: (center, center)
             StatCard("Components", "28+")
@@ -119,15 +119,15 @@ page Main() {
             }
         }
 
-        @* Main content area: asymmetric two-zone layout.
-           Left spotlight panel is narrower; right bento grid expands to fill remaining space.
+        @* Main content area: two-zone layout.
+           Left spotlight panel; right card grid.
            On narrow viewports, stack vertically with spotlight first. *@
         row {
             wrap: true
             collapse: true
             align: (top, center)
 
-            @* Spotlight panel: large featured preview card with cycling content. *@
+            @* Spotlight panel: featured preview card with cycling content. *@
             column {
                 weight: vertical
                 Card("Spotlight") {
@@ -166,8 +166,8 @@ page Main() {
                 }
             }
 
-            @* Bento grid: mixed-density card tiles that wrap responsively.
-               Core cards get more horizontal emphasis; pattern/system cards are standard. *@
+            @* Card grid: tiles that wrap responsively.
+               Core cards, pattern cards, and system cards grouped by category. *@
             row {
                 wrap: true
                 align: (center, center)
@@ -223,7 +223,7 @@ page Main() {
             }
         }
 
-        @* Alternative list view — compact rows for scannability. *@
+        @* Alternative list view — rows for rapid scanning. *@
         if currentView == "list" {
             column {
                 for pageName in ["Buttons", "Forms", "DataDisplay", "Navigation", "Overlays", "Feedback", "DataPatterns", "Accessibility"] {
@@ -244,7 +244,7 @@ page Main() {
             }
         }
 
-        @* Footer with concise description. *@
+        @* Footer with description. *@
         Text("Built with InterSpec — executable wireframes demonstrating components, events, state management, reactivity, and navigation.")
     }
 }

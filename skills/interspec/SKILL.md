@@ -24,9 +24,9 @@ InterSpec is a **declarative UI specification language**. It describes
 it as executable wireframes.
 
 **Golden rule:** If the user asks for visual styling, explain that InterSpec
-is intentionally style-free and focus on structure and interaction. If they
-need to communicate visual intent without breaking the no-styling rule, use
-`@` hints instead.
+is intentionally style-free and focus on structure and interaction. Hints
+communicate semantic role and behavioral constraint — not visual appearance.
+Visual intent belongs in a DESIGN.md or equivalent design system file.
 
 ## Critical Rules (Read First)
 
@@ -76,11 +76,13 @@ InterSpec logic executes.
 Single-line hints start with `@` and run to end of line. Multi-line hints use
 `@* ... *@` blocks. Hints are freeform text — no grammar, no validation. They
 pass through `isc strip` unchanged and are ignored by deterministic transpilers.
-Use hints to communicate visual hierarchy, responsive intent, accessibility,
-spacing, animation, or any other implementer guidance.
+Use hints to communicate semantic role, responsive intent, accessibility,
+behavioral constraints, or any other non-visual implementer guidance.
+Do not use hints to describe visual appearance (colors, fonts, spacing
+values, animation curves) — those belong in the project's DESIGN.md.
 
 ```interspec
-@ This is the primary action on the page — make it prominent
+@ This is the primary action for this view
 Button("Save") { ... }
 
 @*
@@ -123,8 +125,8 @@ language spec for the full hint vocabulary.
 *@
 ```
 Hints have no runtime effect. They survive `isc strip` and are ignored by
-transpilers. Use them to communicate visual hierarchy, responsive intent,
-accessibility, or spacing decisions.
+transpilers. Use them to communicate semantic role, responsive intent,
+accessibility, or behavioral constraints.
 
 ### Variables
 ```interspec
@@ -250,7 +252,7 @@ import "https://cdn.example.com/ui/buttons.is"
 - **Viewport safety:** Top-level page layout should include a hint about centering and max-width for desktop.
 - **Viewport safety:** Use `@ viewport-safe` on sections that must not overflow the viewport.
 - Children passed at instantiation append to the **end** of the component body.
-- No styling properties (colors, fonts, spacing, pixel values). Use `@` hints if the implementer needs visual guidance.
+- No styling properties (colors, fonts, spacing, pixel values). Use `@` hints only for semantic role, behavioral constraint, or content relationship — never for visual appearance. If a hint would be better expressed as a DESIGN.md token value, rewrite it as a semantic label.
 - `for` loops iterate over arrays â€” never write unbounded loops.
 - Use `@` for brief hints (one line) and `@* ... *@` for detailed guidance (multiple sentences).
 - Prefer hints over comments for anything the implementer needs to see.
@@ -293,7 +295,6 @@ page Main() {
 
     column {
         scrollable: true
-        @ Compact cards — minimal padding between items
         for fruit in items {
             Card(fruit) {
                 Button("Pick ${fruit}") {
@@ -315,7 +316,7 @@ page Main() {
     state agreed = false
 
     column {
-        @ Primary input — wide, full width
+        @ role: primary-input
         Input("Email") {
             required: true
             on input { log("email: ${value}") }
@@ -323,7 +324,7 @@ page Main() {
         Checkbox("I agree") {
             required: true
         }
-        @ Primary CTA — most visually prominent button on the page
+        @ role: primary-action
         Button("Submit") {
             on click { Dialog("Confirm submission") }
         }
