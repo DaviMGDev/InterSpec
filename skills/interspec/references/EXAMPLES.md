@@ -168,6 +168,153 @@ page Main() {
 }
 ```
 
+## Drawer / Side Panel
+
+```interspec
+@*
+  Drawer slides in from the specified edge (default: right).
+  On mobile, the drawer should overlay the full screen width.
+  On desktop, consider a narrower panel with a backdrop overlay.
+*@
+page Main() {
+    state drawerOpen = false
+
+    column {
+        Text("Main content here") {
+            weight: both
+        }
+
+        @ Primary trigger — clearly indicate this opens a side panel
+        Button("Open filters") {
+            on click { toggle(drawerOpen) }
+        }
+    }
+
+    if drawerOpen {
+        Drawer("Filters") {
+            side: right
+            on open { log("Drawer opened") }
+            on close { log("Drawer closed") }
+
+            Text("Filter by category")
+            Checkbox("Fruit")
+            Checkbox("Vegetables")
+            Checkbox("Dairy")
+
+            Button("Apply") {
+                on click { toggle(drawerOpen) }
+            }
+
+            Button("Cancel") {
+                on click { toggle(drawerOpen) }
+            }
+        }
+    }
+}
+```
+
+## DatePicker
+
+```interspec
+@*
+  DatePicker shows a calendar on focus/click.
+  On mobile, prefer the native date picker.
+  Use min/max to prevent out-of-range selections.
+*@
+page Main() {
+    state selectedDate = ""
+
+    column {
+        Text("Selected date: ${selectedDate}")
+
+        DatePicker("Choose a date") {
+            min: "2024-01-01"
+            max: "2025-12-31"
+            on commit {
+                selectedDate = value
+                log("Date picked: " + value)
+            }
+        }
+    }
+}
+```
+
+## Divider
+
+```interspec
+@* Divider is a pure visual separator with no interactivity.
+   Use it to break up long content sections.
+   No children, no events, no properties. *@
+page Main() {
+    column {
+        Text("Section A")
+        Divider()
+        Text("Section B")
+        Divider()
+        Text("Section C")
+    }
+}
+```
+
+## FileUpload
+
+```interspec
+@*
+  FileUpload opens a native file picker.
+  Use accept to restrict file types and multiple to allow batch selection.
+  The input event fires on selection; commit fires on confirmation. *@
+page Main() {
+    state filesReady = false
+
+    column {
+        FileUpload("Upload images") {
+            accept: "image/*"
+            multiple: true
+            on input {
+                log("File(s) selected")
+            }
+            on commit {
+                filesReady = true
+                Toast("Files ready for upload")
+            }
+        }
+
+        if filesReady {
+            Button("Submit files") {
+                on click {
+                    Toast("Uploading...")
+                }
+            }
+        }
+    }
+}
+```
+
+## TreeView
+
+```interspec
+@*
+  TreeView displays hierarchical data.
+  Use click to handle node selection,
+  open/close to react to branch expansion.
+  Children define the content per node level. *@
+page Main() {
+    column {
+        TreeView(["Documents", "Images", "Music"]) {
+            on click {
+                log("Selected: " + value)
+            }
+            on open {
+                Toast("Branch expanded")
+            }
+            on close {
+                Toast("Branch collapsed")
+            }
+        }
+    }
+}
+```
+
 ## Form with Validation
 ```interspec
 page Main() {

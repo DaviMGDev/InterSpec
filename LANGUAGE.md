@@ -211,6 +211,7 @@ Button("Toggle") {
 | `Button` | `label` | A clickable button that triggers actions. |
 | `Text` | `content` | Renders a string of text. |
 | `Input` | `placeholder` | A single-line text input field for user entry. |
+| `DatePicker` | `placeholder` | A date selection input that opens a calendar picker for choosing a date. Use `min` and `max` properties to constrain the date range. |
 | `Select` | `options` | A dropdown picker for selecting a value. Pass an array of strings or objects. Distinct from `DropdownMenu` which triggers actions. |
 | `Checkbox` | `label` | A toggleable checkbox with an adjacent label. |
 | `Toggle` | `label` | A boolean on/off toggle switch with a label. |
@@ -221,11 +222,13 @@ Button("Toggle") {
 | `Card` | `title` | A content container that groups related information. Card is a neutral component (no wrapper node) — children are appended after the title. |
 | `Modal` | `title` | A modal overlay dialog that blocks interaction with the rest of the page. |
 | `Dialog` | `title` | A confirmation or information dialog that requires user action. |
+| `Drawer` | `title` | A side panel that slides in from the edge of the screen for navigation, filters, or supplementary content. Use the `side` property to set the origin edge (`left` or `right`). |
 | `Toast` | `message` | A brief, auto-dismissing pop-up notification. |
 | `Tooltip` | `content` | A hover-revealed tooltip that displays contextual information. |
 | `Table` | `columns`, `rows` | Tabular data display. `columns` is an array of header strings. `rows` is an array of row arrays. |
 | `Tabs` | `tabs` | Tabbed content panel. `tabs` is an array of label strings. Children are panel bodies, matched by position to the labels. |
 | `Accordion` | `items` | Expandable sections. `items` is an array of title strings. Children are section bodies, matched by position. Only one section is expanded at a time. |
+| `TreeView` | `items` | A hierarchical tree display for nested data such as file systems, org charts, or category trees. Children define the content for each node level. |
 | `Badge` | `label` | Inline indicator for status, count, or category. Use `variant` for semantic type. |
 | `Link` | `label` | A navigational element distinct from action `Button`. Use `navigate` via `on click` to specify the target page. No `href` — InterSpec has no network access. |
 | `Progress` | `value` | Read-only progress indicator. `value` is a number. Use `max` property to set the upper bound (default 100). |
@@ -234,8 +237,10 @@ Button("Toggle") {
 | `Stepper` | `steps` | Multi-step flow indicator (read-only). `steps` is an array of label strings. Use `current` property to mark the active step. |
 | `Pagination` | — | Page navigation control for paginated lists. Use `current` and `total` properties. |
 | `DropdownMenu` | `label` | A command menu that triggers actions (not a form input). Distinct from `Select` which returns a value. Children define the menu items as `Button` components. |
+| `Divider` | — | A horizontal divider that visually separates content sections. Has no children and no interactive properties — purely structural. |
 | `Section` | `title` | Structural content grouping under a heading. Groups related components without implying a card/border — purely architectural. |
 | `Form` | — | Groups related inputs under a submission action. Fires a `submit` event when the user submits the form. |
+| `FileUpload` | `label` | A file upload control that opens a file picker dialog or acts as a drop zone. Use `accept` to filter file types and `multiple` to allow multiple files. |
 
 #### Usage Examples
 
@@ -325,11 +330,26 @@ DropdownMenu("Actions") {
     Button("Delete") { on click { Dialog("Confirm delete") } }
 }
 
+// Drawer — side panel (slides in from the right by default, use `side: left` for left edge)
+Drawer("Navigation") {
+    side: left
+    on open { log("Drawer opened") }
+    on close { log("Drawer closed") }
+
+    Text("Sidebar content goes here")
+    Button("Close") {
+        on click { toggle(drawerOpen) }
+    }
+}
+
 // Section — structural grouping
 Section("User Details") {
     Text("Name: Alice")
     Text("Role: Admin")
 }
+
+// Divider — horizontal separator
+Divider()
 
 // Form — grouped inputs with submit
 Form {
@@ -341,6 +361,18 @@ Form {
         on click { validate() }
     }
 }
+
+// FileUpload — file picker
+FileUpload("Upload files") {
+    accept: "image/*"
+    multiple: true
+    on input {
+        log("Files selected")
+    }
+    on commit {
+        log("Upload confirmed")
+    }
+}
 ```
 
 ### Events
@@ -349,12 +381,12 @@ Form {
 |-------|------------|-------------|
 | `click` | `Button`, `Checkbox`, `Toggle`, `Card` | Fired when the user clicks or taps the component. |
 | `hover` | `Button`, `Tooltip`, `Card`, `Icon` | Fired when the user hovers the cursor over the component. |
-| `input` | `Input`, `Select` | Fired on every value change (e.g., each keystroke in an `Input`). |
-| `commit` | `Input`, `Select` | Fired when the user confirms a value (blur after change, Enter key, or dropdown close). Distinct from `input` which fires per keystroke. |
-| `focus` | `Input`, `Button`, `Select` | Fired when the component receives focus. |
-| `blur` | `Input`, `Button`, `Select` | Fired when the component loses focus. |
-| `open` | `Modal`, `Dialog`, `Toast` | Fired when the component becomes visible. |
-| `close` | `Modal`, `Dialog`, `Toast` | Fired when the component is dismissed or hidden. |
+| `input` | `Input`, `Select`, `DatePicker`, `FileUpload` | Fired on every value change (e.g., each keystroke in an `Input`, date selection in a `DatePicker`, file selection in `FileUpload`). |
+| `commit` | `Input`, `Select`, `DatePicker`, `FileUpload` | Fired when the user confirms a value (blur after change, Enter key, dropdown close, or date/file confirmation). Distinct from `input` which fires per interaction. |
+| `focus` | `Input`, `Button`, `Select`, `DatePicker` | Fired when the component receives focus. |
+| `blur` | `Input`, `Button`, `Select`, `DatePicker` | Fired when the component loses focus. |
+| `open` | `Modal`, `Dialog`, `Drawer`, `Toast`, `TreeView` | Fired when the component becomes visible, or when a `TreeView` branch is expanded. |
+| `close` | `Modal`, `Dialog`, `Drawer`, `Toast`, `TreeView` | Fired when the component is dismissed or hidden, or when a `TreeView` branch is collapsed. |
 | `submit` | `Form` | Fired when the form is submitted (via Enter key or submit button). |
 | `key` | `Input` | Fired on key press. Takes a key name argument: `on key("Enter") { ... }`, `on key("Escape") { ... }`. |
 | `longpress` | `Button`, `Card`, any interactive component | Fired on touch-hold (mobile interaction). |
@@ -382,12 +414,16 @@ Form {
 | `collapse` | `row` layout | `true`, `false` | Whether the row automatically collapses to a column on narrow viewports. The runtime chooses the breakpoint. |
 | `placeholder` | `Input` | `string` | Hint text displayed inside the field when it is empty. |
 | `required` | `Input`, `Select`, `Checkbox` | `true`, `false` | Marks the field as required for form validation. |
+| `side` | `Drawer` | `left`, `right` | Which edge the drawer slides in from. Default is `right`. |
+| `accept` | `FileUpload` | `string` | Accepted file MIME types (e.g., `"image/*"`, `".pdf"`). |
+| `multiple` | `FileUpload` | `true`, `false` | Whether multiple files can be selected at once. Default is `false`. |
 | `disabled` | Any interactive component | `true`, `false` | Disables the component, preventing interaction. |
 | `loading` | `Button`, `Card`, `Table`, `Image` | `true`, `false` | Indicates an async operation is in progress. Implies `disabled` when `true`. |
 | `error` | `Input`, `Select` | `true`, `false`, or a message string | Marks the field as having a validation error. When a string is provided, it is shown as the error message. |
 | `variant` | `Alert`, `Badge` | `info`, `success`, `warning`, `error` | Semantic variant indicating the type or severity. |
 | `src` | `Image` | `string` | Source URL for the image content. |
-| `max` | `Progress` | `number` | Upper bound for the progress value. Defaults to 100. |
+| `min` | `DatePicker`, `Progress` | `number` | Lower bound. For `Progress`, defaults to 0. For `DatePicker`, a minimum date string. |
+| `max` | `DatePicker`, `Progress` | `number` | Upper bound. For `Progress`, defaults to 100. For `DatePicker`, a maximum date string. |
 | `current` | `Stepper`, `Pagination` | `number` (0-indexed for Stepper, 1-indexed for Pagination) | The active step or page. |
 | `total` | `Pagination` | `number` | Total number of pages. |
 

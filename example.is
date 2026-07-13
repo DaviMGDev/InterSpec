@@ -132,6 +132,19 @@ page Main() {
             }
         }
 
+        // Divider — separates header from content
+        Divider()
+
+        // -- DatePicker --
+        @ Date range filter for the fruit list
+        DatePicker("Filter by date...") {
+            min: "2024-01-01"
+            max: "2024-12-31"
+            on commit {
+                log("Date selected: " + value)
+            }
+        }
+
         // -- Selection display --
         Text("Selected: ${selected}  |  Count: ${count}")
 
@@ -224,6 +237,31 @@ page Main() {
             }
         }
 
+        // -- TreeView — hierarchical category browser --
+        TreeView(["Fruits", "Vegetables", "Dairy"]) {
+            on click {
+                log("Selected: " + value)
+            }
+            on open {
+                Toast("Branch expanded")
+            }
+            on close {
+                Toast("Branch collapsed")
+            }
+        }
+
+        // -- FileUpload — file upload control --
+        FileUpload("Upload image") {
+            accept: "image/*"
+            multiple: true
+            on input {
+                log("Files selected")
+            }
+            on commit {
+                Toast("Upload confirmed")
+            }
+        }
+
         @ Destructive action — give this button prominent warning styling (red / danger variant)
         Button("Delete all items") {
             on click {
@@ -298,6 +336,42 @@ page Main() {
     Button("Hover me") {
         on hover {
             Tooltip("This is a tooltip!")
+        }
+    }
+
+    // Drawer / Side panel demo
+    state drawerOpen = false
+
+    @ Trigger button — opens the navigation drawer from the left
+    Button("Open navigation drawer") {
+        on click {
+            toggle(drawerOpen)
+        }
+    }
+
+    if drawerOpen {
+        Drawer("Navigation") {
+            side: left
+            on open {
+                log("Drawer opened")
+            }
+            on close {
+                log("Drawer closed")
+                drawerOpen = false
+            }
+
+            Text("Menu")
+            Button("Dashboard") {
+                on click { navigate Dashboard() }
+            }
+            Button("Settings") {
+                on click { navigate Settings(theme: "dark", volume: volume) }
+            }
+            Button("Close") {
+                on click {
+                    drawerOpen = false
+                }
+            }
         }
     }
 }

@@ -204,10 +204,10 @@ back()
 
 ## Built-in Components (quick list)
 
-Button, Text, Input, Select, Checkbox, Toggle, Slider, Image, Icon, Alert,
-Card, Modal, Dialog, Toast, Tooltip, Table, Tabs, Accordion, Badge, Link,
-Progress, EmptyState, Breadcrumb, Stepper, Pagination, DropdownMenu, Section,
-Form.
+Button, Text, Input, Select, Checkbox, DatePicker, Toggle, Slider, Image, Icon, Alert,
+Card, Modal, Dialog, Drawer, Toast, Tooltip, Table, Tabs, Accordion, TreeView, Badge, Link,
+Progress, EmptyState, Breadcrumb, Stepper, Pagination, DropdownMenu, Divider, Section,
+Form, FileUpload.
 
 For the full catalog with parameters, events, and properties, see
 [the component reference](references/CATALOG.md).
