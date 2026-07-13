@@ -90,6 +90,27 @@ Button("Save") { ... }
 row { ... }
 ```
 
+### 7. Viewport safety — prevent overflow with `scrollable` and hints
+Any `column` or `row` containing `for` loops, many children (>5), or
+data-heavy content (tables, long lists) **must** have `scrollable: true`
+or a `@ scrollable` hint. Without this, the implementer may render content
+at full height — exceeding the viewport and creating a broken page.
+
+```interspec
+@ scrollable — this list may grow long, constrain to viewport height
+column {
+    scrollable: true
+    for item in items {
+        Card(item)
+    }
+}
+```
+
+Use `@ viewport-safe` on sections that must not overflow, and
+`@ constrained` to signal max-width/max-height limits. See the
+[Viewport Safety](../../LANGUAGE.md#11-viewport-safety) section in the
+language spec for the full hint vocabulary.
+
 ## Syntax Quick Reference
 
 ### Hints
@@ -225,6 +246,9 @@ import "https://cdn.example.com/ui/buttons.is"
 - All custom components use PascalCase; all variables use camelCase or snake_case.
 - No `$` prefix on variable access; `${}` only inside strings.
 - Only `row` and `column` for layout; use `wrap: true` for wrapping and `collapse: true` for responsive collapse.
+- **Viewport safety:** Any `column`/`row` with `for` loops, >5 children, or data-heavy content must have `scrollable: true`.
+- **Viewport safety:** Top-level page layout should include a hint about centering and max-width for desktop.
+- **Viewport safety:** Use `@ viewport-safe` on sections that must not overflow the viewport.
 - Children passed at instantiation append to the **end** of the component body.
 - No styling properties (colors, fonts, spacing, pixel values). Use `@` hints if the implementer needs visual guidance.
 - `for` loops iterate over arrays â€” never write unbounded loops.
@@ -232,6 +256,28 @@ import "https://cdn.example.com/ui/buttons.is"
 - Prefer hints over comments for anything the implementer needs to see.
 
 ## Common Patterns
+
+### Viewport-safe page layout
+```interspec
+@* Viewport-safe page pattern:
+   Root column fills the viewport height and scrolls internally.
+   Content is centered with max-width on desktop. *@
+page Main() {
+    column {
+        scrollable: true
+        align: (center, top)
+
+        Text("My App") {
+            weight: horizontal
+        }
+
+        @ Constrained — max-width prevents edge-to-edge stretch on wide screens
+        for item in items {
+            Card(item)
+        }
+    }
+}
+```
 
 ### List with interactive items
 ```interspec
@@ -246,6 +292,7 @@ page Main() {
     }
 
     column {
+        scrollable: true
         @ Compact cards — minimal padding between items
         for fruit in items {
             Card(fruit) {
