@@ -109,17 +109,21 @@ InterSpec provides only two structural layouts: `row` and `column`. Granular spa
 ### Layouts
 ```interspec
 row {
-    wrap: true    // Optional: allows items to wrap to the next line
-    collapse: true // Optional: auto-collapse to column on narrow viewports
+    wrap: true      // Optional: allows items to wrap to the next line
+    collapse: true   // Optional: auto-collapse to column on narrow viewports
+    scrollable: true // Optional: content scrolls when it exceeds available space
     Text("Item 1")
     Text("Item 2")
 }
 
 column {
+    scrollable: true // Optional: content scrolls when it exceeds available height
     Text("Item 1")
     Text("Item 2")
 }
 ```
+
+When `scrollable: true`, the implementer **must** constrain the container to a bounded height (viewport or parent) and apply `overflow: auto` (or equivalent). This is a structural signal — it tells the implementer that the container's content may exceed available space and must scroll rather than overflow.
 
 ### Component Properties
 Components can be aligned and weighted within their parent layout.
@@ -623,3 +627,117 @@ However, there is one interaction to be aware of:
 | Parsing | Recognized by the parser | Transparent to the parser |
 
 Use comments for notes about the spec itself. Use hints for guidance about the final implementation.
+
+---
+
+## 11. Viewport Safety
+
+InterSpec is style-free by design — it describes structure and interaction, not visual constraints. However, when a `.is` file is implemented into a real UI, the implementer must make decisions about viewport boundaries, overflow, and scrolling. This section provides patterns and conventions to prevent pages from overflowing the viewport or becoming unresponsive.
+
+### The Problem
+
+A `.is` file may declare a `column` with a `for` loop that renders 50 items, or a `Table` with many rows, or deeply nested layouts. Without explicit guidance, the implementer may render all of this content at full height — exceeding the viewport and creating an unscrollable, broken page.
+
+### Recommended Page Pattern
+
+Every page should establish a bounded root container. The recommended pattern:
+
+```interspec
+@* Viewport-safe page pattern:
+   Root column fills the viewport height and scrolls internally.
+   Max-width prevents edge-to-edge stretch on wide screens. *@
+page Main() {
+    column {
+        scrollable: true
+        align: (center, top)
+        @ Constrain content width on desktop — center with max-width
+        Text("My App")
+        // ... content ...
+    }
+}
+```
+
+The implementer should translate this to:
+- A root container with `height: 100vh` (or `dvh`) and `overflow: hidden`
+- An inner scrollable area with `overflow-y: auto`
+- A `max-width` constraint (e.g., `1200px`) with `margin: 0 auto` for desktop centering
+
+### Table and List Overflow
+
+Tables and long lists are the most common source of viewport overflow. Use `scrollable: true` on the parent layout:
+
+```interspec
+@ Data table — constrain to viewport height with internal scroll
+column {
+    scrollable: true
+    Table(["Name", "Role"], rows)
+}
+```
+
+For lists rendered with `for` loops, apply the same pattern:
+
+```interspec
+@ Long list — must scroll within bounded height
+column {
+    scrollable: true
+    for item in items {
+        Card(item)
+    }
+}
+```
+
+### Nesting Depth Warning
+
+Deeply nested `row`/`column` layouts compound height. Each nesting level adds implicit vertical space. As a guideline:
+- **3 or fewer nesting levels**: Safe for most implementations
+- **4+ nesting levels**: Add a `@ constrained` hint to signal that the implementer should limit height at each level
+
+```interspec
+@ Constrained — limit height at each nesting level to prevent compounding
+row {
+    column {
+        row {
+            column {
+                Text("Deeply nested content")
+            }
+        }
+    }
+}
+```
+
+### Viewport Hint Vocabulary
+
+While hints are freeform, the following tokens are **conventional signals** that implementers (human or AI) should recognize and act on. Using these tokens makes viewport intent explicit and scannable.
+
+| Token | Meaning | Implementer action |
+|-------|---------|--------------------|
+| `@ viewport-safe` | This section must not overflow the viewport | Constrain height, apply overflow handling |
+| `@ scrollable` | This container should scroll when content exceeds space | Set bounded height, `overflow: auto` |
+| `@ constrained` | Limit width/height to viewport or parent bounds | Apply max-width/max-height, prevent edge-to-edge stretch |
+| `@ compact` | Minimize vertical space usage | Reduce padding, line-height, margins |
+| `@ mobile-break` | Needs special handling on narrow screens | Implement responsive breakpoint behavior |
+
+These tokens are **not** parsed or enforced — they are prose conventions. The consuming skill (see `interspec-consume`) teaches implementers to recognize and act on them.
+
+```interspec
+@ viewport-safe — constrain this section to viewport height
+column {
+    scrollable: true
+    Table(columns, rows)
+}
+
+@ compact — minimize vertical space in this toolbar
+row {
+    wrap: true
+    Button("Filter")
+    Button("Sort")
+    Button("Export")
+}
+
+@ mobile-break — stack into single column on narrow viewports
+row {
+    collapse: true
+    Card("Left")
+    Card("Right")
+}
+```

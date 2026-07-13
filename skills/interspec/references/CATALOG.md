@@ -75,6 +75,7 @@
 | `weight`      | Any component in row/column      | `horizontal`, `vertical`, `both` |
 | `wrap`        | `row` layout                     | `true`, `false` |
 | `collapse`    | `row` layout                     | `true`, `false` |
+| `scrollable`  | `row`, `column`                  | `true`, `false` | Content scrolls when it exceeds available space. Implementer MUST constrain height and apply overflow. See [Viewport Safety](../../LANGUAGE.md#11-viewport-safety). |
 | `placeholder` | `Input`                          | string |
 | `required`    | Input, Select, Checkbox          | `true`, `false` |
 | `side`        | Drawer                           | `left`, `right` |
