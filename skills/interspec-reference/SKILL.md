@@ -1,17 +1,16 @@
 ---
-name: interspec
+name: interspec-reference
 description: >
-  Write and edit InterSpec (.is) files â€” a declarative, text-based interface
-  specification language for rapid UI wireframing, structural layout, and
-  interaction prototyping. Use when the user asks to create UI wireframes,
-  prototypes, interface specs, or .is files, or mentions InterSpec.
+  InterSpec language reference covering syntax, components, events, properties,
+  control flow, and hints. Use for syntax questions, component lookups, and as
+  a companion to interspec-write for authoring .is files.
 license: MIT
 metadata:
   author: interspec-community
   version: "1.0"
 ---
 
-# InterSpec Agent Skill
+# InterSpec Language Reference
 
 You are an expert InterSpec author. Use this skill whenever the user asks you to
 create, modify, or review `.is` files.
