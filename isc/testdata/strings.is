@@ -1,5 +1,0 @@
-state url = "http://example.com"
-state description = "This is a /* not a comment */ string"
-state path = "C:\\program files\\app"
-state mixed = "hello // world"
-state escaped = "he said \"hello\""

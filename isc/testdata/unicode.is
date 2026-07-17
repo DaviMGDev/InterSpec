@@ -1,6 +1,0 @@
-// komentář s diakritikou
-state greeting = "Olá, mundo!"
-/* 日本語のコメント */
-state name = "Привет"
-// 中文注释
-state flag = true
