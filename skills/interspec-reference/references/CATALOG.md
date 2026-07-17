@@ -94,7 +94,7 @@
 ## Hints
 
 Any component, layout, or page can carry `@` hints — freeform annotations that
-survive `isc strip` and guide the implementer without affecting runtime behavior.
+survive comment stripping and guide the implementer without affecting runtime behavior.
 
 | Form | Syntax | Example |
 |------|--------|---------|

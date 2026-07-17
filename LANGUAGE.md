@@ -506,7 +506,7 @@ InterSpec provides a lightweight hint system for communicating **implementer gui
 
 Hints occupy a tier between comments and properties:
 
-| Construct | Syntax | Stripped by `isc strip`? | Transpiler sees? | Human/AI sees? |
+| Construct | Syntax | Stripped by comment stripper? | Transpiler sees? | Human/AI sees? |
 |-----------|--------|------------------------|------------------|----------------|
 | Comment | `//`, `/* */` | ✅ Removed | ❌ No | ❌ No |
 | **Hint** | **`@ ...`**, **`@* ... *@`** | **❌ Kept** | **❌ Ignores** | **✅ Yes** |
@@ -514,7 +514,7 @@ Hints occupy a tier between comments and properties:
 
 Hints are:
 - **Freeform text** — no grammar, no parsing, no validation. Any text after `@` is valid.
-- **Persistent** — they survive `isc strip` unchanged.
+- **Persistent** — they survive comment stripping unchanged.
 - **Non-enforced** — deterministic transpilers and runtimes ignore them entirely.
 - **Human-first** — their audience is the person or AI that will translate the spec into a real UI.
 
@@ -609,13 +609,13 @@ hints with a category tag:
 Hints without a recognized prefix are treated as informational prose —
 they carry intent but are not actionable by consuming tools or AIs.
 
-### Notes on stripper interaction
+### Notes on comment stripping
 
-The `isc strip` command strips `//` line comments and `/* */` block comments. Since hints use `@` and `@* *@` (not `/`), they are **not affected** by the stripper and pass through verbatim.
+A comment stripper removes `//` line comments and `/* */` block comments. Since hints use `@` and `@* *@` (not `/`), they are **not affected** by the stripper and pass through verbatim.
 
 However, there is one interaction to be aware of:
 
-- **Avoid `//` inside a single-line hint.** The character sequence `//` is always treated as a comment opener by `isc strip`, even if it appears after `@`. Everything from `//` to the end of the line will be removed.
+- **Avoid `//` inside a single-line hint.** The character sequence `//` is always treated as a comment opener by a comment stripper, even if it appears after `@`. Everything from `//` to the end of the line will be removed.
 
   ```interspec
   @ Avoid this // everything after // is stripped
@@ -634,7 +634,7 @@ However, there is one interaction to be aware of:
 | Aspect | Comment (`//`, `/* */`) | Hint (`@`, `@* *@`) |
 |--------|------------------------|---------------------|
 | Audience | Developer of the `.is` file | Implementer of the final UI |
-| Survival | Stripped by `isc strip` | Survives `isc strip` |
+| Survival | Stripped by comment stripper | Survives comment stripping |
 | Runtime | Removed before execution | Ignored (treated as code text) |
 | Tone | Internal notes, TODOs, explanations | External guidance, design intent |
 | Parsing | Recognized by the parser | Transparent to the parser |

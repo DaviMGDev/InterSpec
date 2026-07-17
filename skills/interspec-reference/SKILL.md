@@ -74,7 +74,7 @@ InterSpec logic executes.
 ### 6. Hints use `@` / `@* *@` — they survive stripping and guide implementers
 Single-line hints start with `@` and run to end of line. Multi-line hints use
 `@* ... *@` blocks. Hints are freeform text — no grammar, no validation. They
-pass through `isc strip` unchanged and are ignored by deterministic transpilers.
+survive comment stripping unchanged and are ignored by deterministic transpilers.
 Use hints to communicate semantic role, responsive intent, accessibility,
 behavioral constraints, or any other non-visual implementer guidance.
 Do not use hints to describe visual appearance (colors, fonts, spacing
@@ -123,7 +123,7 @@ language spec for the full hint vocabulary.
   Everything between @* and *@ is guidance.
 *@
 ```
-Hints have no runtime effect. They survive `isc strip` and are ignored by
+Hints have no runtime effect. They survive comment stripping and are ignored by
 transpilers. Use them to communicate semantic role, responsive intent,
 accessibility, or behavioral constraints.
 

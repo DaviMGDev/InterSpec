@@ -45,66 +45,49 @@ page Main() {
 | Navigation | `navigate PageName(param: value)` |
 | String interpolation | `"Hello, ${name}!"` |
 
-## `isc` — The CLI Tool
+## Agent Skills
 
-The `isc` command-line tool processes `.is` files. Currently it provides:
+InterSpec comes with a set of agent skills that guide AI coding agents in working with `.is` files:
 
-### `isc strip`
+| Skill | Purpose |
+|-------|---------|
+| **interspec-reference** | Language syntax reference, component catalog, event catalog |
+| **interspec-write** | Patterns, anti-patterns, and design judgment for authoring `.is` files |
+| **interspec-consume** | Implementing `.is` files into production frontend code (HTML/CSS/JS, React, Vue) |
+| **interspec-verify** | Verifying that a frontend implementation conforms to its `.is` specification |
+| **interspec-reverse** | Extracting `.is` specifications from existing UIs |
 
-Removes all comments (single-line `//` and block `/* */`) from InterSpec source files, preserving string literals and code.
-
-```bash
-# Strip comments from a file (output to stdout)
-isc strip input.is
-
-# Strip and write to a file
-isc strip -o clean.is input.is
-
-# Pipe from stdin
-cat input.is | isc strip
-```
-
-**Features:**
-- Preserves comment delimiters inside string literals (`"http://example.com"` stays intact)
-- Handles escaped quotes inside strings
-- Collapses comment-only lines (no blank lines left behind)
-- Reports unterminated block comments with file, line, and column
-- Supports Unicode content
+Together they form a complete workflow: **write → consume → verify → reverse**.
 
 ## Project Structure
 
 ```
 InterSpec/
 ├── LANGUAGE.md          # Full language specification
-├── example.is           # Comprehensive example demonstrating all features
-└── isc/                 # CLI tool (Go)
-    ├── main.go          # Entry point
-    ├── cmd/
-    │   └── strip.go     # `strip` command implementation
-    ├── stripper/
-    │   ├── stripper.go  # Comment stripping state machine
-    │   └── stripper_test.go
-    ├── testdata/        # Test fixtures
-    └── go.mod
+├── README.md            # This file
+├── CONTRIBUTING.md      # Contribution guidelines
+├── LICENSE              # MIT license
+├── assets/              # Demo assets and design tokens
+│   ├── demo.css
+│   ├── demo.js
+│   └── tokens.json
+└── skills/              # Agent skill definitions
+    ├── interspec-consume/
+    ├── interspec-reference/
+    ├── interspec-reverse/
+    ├── interspec-verify/
+    └── interspec-write/
 ```
 
-## Building `isc`
+## Getting Started
 
-```bash
-cd isc
-go build -o isc .
-```
-
-## Running Tests
-
-```bash
-cd isc
-go test ./...
-```
+1. Read the **[full language specification](LANGUAGE.md)** — covers syntax, components, events, hints, and viewport safety.
+2. Browse the **agent skills** under `skills/` — each skill teaches an AI agent how to work with `.is` files.
+3. Explore the **built-in catalog** ([skill reference](skills/interspec-reference/references/CATALOG.md)) for the complete list of components, events, and properties.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and pull request guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on contributing to the specification, skills, and documentation.
 
 ## License
 

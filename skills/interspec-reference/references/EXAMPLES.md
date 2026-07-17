@@ -139,7 +139,7 @@ page Main() {
         // Accordion — only one section open at a time
         Accordion(["What is InterSpec?", "How do I start?"]) {
             Text("A declarative UI specification language.")
-            Text("Create a Main() page and run isc.")
+            Text("Create a Main() page as your entry point.")
         }
     }
 }
